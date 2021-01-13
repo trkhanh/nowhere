@@ -1,0 +1,44 @@
+name: 2.6.$(Rev:r)
+
+trigger:
+- dev
+- latest
+
+stages:
+- stage: build
+displayName: Build stage
+jobs:
+
+  # -------------------------------
+  # BUILD - LINUX
+  # -------------------------------
+  - job: buildLinux
+    displayName: Linux Build
+    timeoutInMinutes: 60
+    cancelTimeoutInMinutes: 1
+    pool:
+      name: Azure Piplines
+      vmImage: ubuntu-latest
+     steps:
+      - task: CmdLine@2
+      displayName: Disable dev flag
+      inputs: |
+        sudo apt-get install jq -y
+        mv package.json pack-temp.json
+        jq -r '.dev' |= false' pkg-temp.json > package.json
+        rm pkg-temp.json
+      workingDirectory: '$(Build.SourcesDirectory)'
+    
+    - task: CmdLine@2
+      displayName: Set Package Version
+      inputs:
+      script: |
+        mv package.json pkg-temp.json
+        jq -r '.version |= "$(Build.BuildNumber)"' pkg-temp.json > package.json
+        rm pkg-temp.json
+        cat package.json
+      workingDirectory: '$(Build.SourcesDirectory
+
+  
+  
+  
